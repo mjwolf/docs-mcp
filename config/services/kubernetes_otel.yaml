@@ -1,0 +1,66 @@
+service_name: kubernetes_otel
+title: Kubernetes OpenTelemetry Assets
+description: Utilise the pre-built dashboard for OTel-native metrics and events collected from a Kubernetes cluster
+service_info:
+  common_use_cases:
+  - '# TODO: Add common use cases for this service'
+  data_types_collected:
+  - '# TODO: Add data types collected (logs, metrics, traces, etc.)'
+  compatibility:
+    elastic_stack_versions:
+    - ^8.18.0 || ^9.2.0
+    service_versions:
+    - '# TODO: Add compatible service versions'
+  scaling_and_performance:
+    description: '# TODO: Add service performance description'
+    performance_expectations:
+    - '# TODO: Add typical performance expectations'
+    scaling_guidance:
+    - '# TODO: Add scaling recommendations'
+setup_instructions:
+  prerequisites:
+  - '# TODO: Add service prerequisites'
+  installation_steps:
+  - step: 1
+    title: Install Kubernetes OpenTelemetry Assets
+    description: '# TODO: Add Kubernetes OpenTelemetry Assets installation instructions'
+    commands:
+    - '# TODO: Add commands to install Kubernetes OpenTelemetry Assets'
+kibana_setup_instructions:
+  default:
+    steps:
+    - step: 1
+      instruction: Navigate to 'Management' > 'Integrations' in Kibana.
+    - step: 2
+      instruction: Search for 'Kubernetes OpenTelemetry Assets'.
+    - step: 3
+      instruction: Select and add the 'Kubernetes OpenTelemetry Assets' integration.
+    - step: 4
+      instruction: Install Elastic Agent on the systems running Kubernetes OpenTelemetry Assets, if necessary.
+    - step: 5
+      instruction: '# TODO: Add service-specific configuration steps'
+    - step: 6
+      instruction: Press 'Save Integration' to start collecting data.
+troubleshooting:
+  common_issues:
+  - issue: Kubernetes OpenTelemetry Assets fails to start
+    solution: '# TODO: Add troubleshooting steps for Kubernetes OpenTelemetry Assets startup issues'
+  - issue: No data being collected
+    solution: '# TODO: Add troubleshooting steps for data collection issues'
+validation_steps:
+  steps:
+  - step: 1
+    title: Check Kubernetes OpenTelemetry Assets Service Status
+    description: Verify that Kubernetes OpenTelemetry Assets is running and healthy
+    commands:
+    - '# TODO: Add commands to check Kubernetes OpenTelemetry Assets status'
+    expected_output: '# TODO: Add expected output'
+  - step: 2
+    title: Check Integration Health
+    description: Verify Elastic Agent is collecting data
+    commands:
+    - '# Check Elastic Agent logs for kubernetes_otel integration'
+    - '# Verify data appears in Elasticsearch indices'
+    expected_output: No errors in agent logs, data visible in Kibana
+documentation_sites:
+- '# TODO: Add relevant documentation URLs'

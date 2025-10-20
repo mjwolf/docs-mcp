@@ -1,0 +1,70 @@
+service_name: salesforce
+title: Salesforce
+description: 'Collect logs from Salesforce instances using the Elastic Agent. This integration enables monitoring and analysis
+  of various Salesforce logs, including Login, Logout, Setup Audit Trail, and Apex execution logs. Gain insights into user
+  activity, security events, and application performance.
+
+  '
+service_info:
+  common_use_cases:
+  - '# TODO: Add common use cases for this service'
+  data_types_collected:
+  - '# TODO: Add data types collected (logs, metrics, traces, etc.)'
+  compatibility:
+    elastic_stack_versions:
+    - ^8.16.0 || ^9.0.0
+    service_versions:
+    - '# TODO: Add compatible service versions'
+  scaling_and_performance:
+    description: '# TODO: Add service performance description'
+    performance_expectations:
+    - '# TODO: Add typical performance expectations'
+    scaling_guidance:
+    - '# TODO: Add scaling recommendations'
+setup_instructions:
+  prerequisites:
+  - '# TODO: Add service prerequisites'
+  installation_steps:
+  - step: 1
+    title: Install Salesforce
+    description: '# TODO: Add Salesforce installation instructions'
+    commands:
+    - '# TODO: Add commands to install Salesforce'
+kibana_setup_instructions:
+  default:
+    steps:
+    - step: 1
+      instruction: Navigate to 'Management' > 'Integrations' in Kibana.
+    - step: 2
+      instruction: Search for 'Salesforce'.
+    - step: 3
+      instruction: Select and add the 'Salesforce' integration.
+    - step: 4
+      instruction: Install Elastic Agent on the systems running Salesforce, if necessary.
+    - step: 5
+      instruction: '# TODO: Add service-specific configuration steps'
+    - step: 6
+      instruction: Press 'Save Integration' to start collecting data.
+troubleshooting:
+  common_issues:
+  - issue: Salesforce fails to start
+    solution: '# TODO: Add troubleshooting steps for Salesforce startup issues'
+  - issue: No data being collected
+    solution: '# TODO: Add troubleshooting steps for data collection issues'
+validation_steps:
+  steps:
+  - step: 1
+    title: Check Salesforce Service Status
+    description: Verify that Salesforce is running and healthy
+    commands:
+    - '# TODO: Add commands to check Salesforce status'
+    expected_output: '# TODO: Add expected output'
+  - step: 2
+    title: Check Integration Health
+    description: Verify Elastic Agent is collecting data
+    commands:
+    - '# Check Elastic Agent logs for salesforce integration'
+    - '# Verify data appears in Elasticsearch indices'
+    expected_output: No errors in agent logs, data visible in Kibana
+documentation_sites:
+- '# TODO: Add relevant documentation URLs'

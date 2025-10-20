@@ -1,0 +1,66 @@
+service_name: cloud_asset_inventory
+title: Cloud Asset Discovery
+description: Discover and Create Cloud Assets Discovery
+service_info:
+  common_use_cases:
+  - '# TODO: Add common use cases for this service'
+  data_types_collected:
+  - '# TODO: Add data types collected (logs, metrics, traces, etc.)'
+  compatibility:
+    elastic_stack_versions:
+    - '>=9.2.0'
+    service_versions:
+    - '# TODO: Add compatible service versions'
+  scaling_and_performance:
+    description: '# TODO: Add service performance description'
+    performance_expectations:
+    - '# TODO: Add typical performance expectations'
+    scaling_guidance:
+    - '# TODO: Add scaling recommendations'
+setup_instructions:
+  prerequisites:
+  - '# TODO: Add service prerequisites'
+  installation_steps:
+  - step: 1
+    title: Install Cloud Asset Discovery
+    description: '# TODO: Add Cloud Asset Discovery installation instructions'
+    commands:
+    - '# TODO: Add commands to install Cloud Asset Discovery'
+kibana_setup_instructions:
+  default:
+    steps:
+    - step: 1
+      instruction: Navigate to 'Management' > 'Integrations' in Kibana.
+    - step: 2
+      instruction: Search for 'Cloud Asset Discovery'.
+    - step: 3
+      instruction: Select and add the 'Cloud Asset Discovery' integration.
+    - step: 4
+      instruction: Install Elastic Agent on the systems running Cloud Asset Discovery, if necessary.
+    - step: 5
+      instruction: '# TODO: Add service-specific configuration steps'
+    - step: 6
+      instruction: Press 'Save Integration' to start collecting data.
+troubleshooting:
+  common_issues:
+  - issue: Cloud Asset Discovery fails to start
+    solution: '# TODO: Add troubleshooting steps for Cloud Asset Discovery startup issues'
+  - issue: No data being collected
+    solution: '# TODO: Add troubleshooting steps for data collection issues'
+validation_steps:
+  steps:
+  - step: 1
+    title: Check Cloud Asset Discovery Service Status
+    description: Verify that Cloud Asset Discovery is running and healthy
+    commands:
+    - '# TODO: Add commands to check Cloud Asset Discovery status'
+    expected_output: '# TODO: Add expected output'
+  - step: 2
+    title: Check Integration Health
+    description: Verify Elastic Agent is collecting data
+    commands:
+    - '# Check Elastic Agent logs for cloud_asset_inventory integration'
+    - '# Verify data appears in Elasticsearch indices'
+    expected_output: No errors in agent logs, data visible in Kibana
+documentation_sites:
+- '# TODO: Add relevant documentation URLs'

@@ -17,16 +17,25 @@ type Server struct {
 	setupGuide    *services.SetupGuideProvider
 	documentation *services.DocumentationProvider
 	validation    *services.ValidationProvider
-	integration   *services.IntegrationProvider
 }
 
 func NewServer() *Server {
+	// Try to find config directory relative to the executable
+	configDir := "config"
+	if _, err := os.Stat(configDir); os.IsNotExist(err) {
+		// If not found, try relative to project root (go up one level from cmd/server)
+		configDir = "../config"
+		if _, err := os.Stat(configDir); os.IsNotExist(err) {
+			// If still not found, try absolute path from project root
+			configDir = "/Users/mwolf/git/docs-mcp/config"
+		}
+	}
+
 	return &Server{
-		serviceInfo:   services.NewServiceInfoProvider(),
-		setupGuide:    services.NewSetupGuideProvider(),
-		documentation: services.NewDocumentationProvider(),
-		validation:    services.NewValidationProvider(),
-		integration:   services.NewIntegrationProvider(),
+		serviceInfo:   services.NewServiceInfoProvider(configDir),
+		setupGuide:    services.NewSetupGuideProvider(configDir),
+		documentation: services.NewDocumentationProvider(configDir),
+		validation:    services.NewValidationProvider(configDir),
 	}
 }
 
@@ -105,160 +114,103 @@ func (s *Server) handleInitialize(request JSONRPCRequest) JSONRPCResponse {
 func (s *Server) handleListTools(request JSONRPCRequest) JSONRPCResponse {
 	tools := []Tool{
 		{
-			Name:        "get_service_info",
-			Description: "Get comprehensive information about a service including requirements, capabilities, and supported versions",
+			Name:        "search_documentation",
+			Description: "Perform a web search of the search term, restricted to documentation sites for that service",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
+					"search_term": map[string]interface{}{
+						"type":        "string",
+						"description": "Search term to look for in documentation",
+					},
+					"service_name": map[string]interface{}{
+						"type":        "string",
+						"description": "Name of the service (e.g., apache, nginx, mysql)",
+					},
+				},
+				"required": []string{"search_term", "service_name"},
+			},
+		},
+		{
+			Name:        "get_service_info",
+			Description: "Get curated info on the service including common use cases, data types collected, compatibility, and scaling information",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"service_name": map[string]interface{}{
 						"type":        "string",
 						"description": "Name of the service (e.g., nginx, mysql, aws)",
 					},
 				},
-				"required": []string{"serviceName"},
+				"required": []string{"service_name"},
 			},
 		},
 		{
-			Name:        "get_setup_instructions",
-			Description: "Get step-by-step setup instructions for a service with platform-specific guidance",
+			Name:        "get_service_setup_instructions",
+			Description: "Return a list of known good, working steps to set up a service to prepare it to send data to the integration",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
+					"service_name": map[string]interface{}{
 						"type":        "string",
 						"description": "Name of the service",
-					},
-					"platform": map[string]interface{}{
-						"type":        "string",
-						"description": "Target platform (e.g., ubuntu, centos, docker)",
 					},
 					"version": map[string]interface{}{
 						"type":        "string",
-						"description": "Service version",
+						"description": "Service version (optional)",
 					},
 				},
-				"required": []string{"serviceName"},
+				"required": []string{"service_name"},
 			},
 		},
 		{
-			Name:        "get_configuration_examples",
-			Description: "Get configuration examples and templates for a service",
+			Name:        "get_kibana_setup_instructions",
+			Description: "Return the steps to configure the service in Kibana",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
+					"service_name": map[string]interface{}{
 						"type":        "string",
 						"description": "Name of the service",
 					},
-					"configType": map[string]interface{}{
+					"input_type": map[string]interface{}{
 						"type":        "string",
-						"description": "Type of configuration (e.g., logs, metrics, security)",
+						"description": "Input type (optional, e.g., tcp, udp)",
+					},
+					"version": map[string]interface{}{
+						"type":        "string",
+						"description": "Service version (optional)",
 					},
 				},
-				"required": []string{"serviceName"},
+				"required": []string{"service_name"},
 			},
 		},
 		{
-			Name:        "search_service_docs",
-			Description: "Search for service-specific documentation and guides",
+			Name:        "get_troubleshooting_help",
+			Description: "Return a list of common problems and solutions for the service",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
+					"service_name": map[string]interface{}{
 						"type":        "string",
 						"description": "Name of the service",
 					},
-					"query": map[string]interface{}{
-						"type":        "string",
-						"description": "Search query",
-					},
-					"docType": map[string]interface{}{
-						"type":        "string",
-						"description": "Type of documentation (official, community, troubleshooting)",
-					},
 				},
-				"required": []string{"serviceName", "query"},
+				"required": []string{"service_name"},
 			},
 		},
 		{
-			Name:        "validate_configuration",
-			Description: "Validate service configuration and provide suggestions for improvements",
+			Name:        "get_validation_steps",
+			Description: "Return a list of steps for how to validate that the integration is running properly",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
+					"service_name": map[string]interface{}{
 						"type":        "string",
 						"description": "Name of the service",
 					},
-					"configuration": map[string]interface{}{
-						"type":        "string",
-						"description": "Configuration content to validate",
-					},
-					"configType": map[string]interface{}{
-						"type":        "string",
-						"description": "Type of configuration (yaml, json, conf, etc.)",
-					},
 				},
-				"required": []string{"serviceName", "configuration", "configType"},
-			},
-		},
-		{
-			Name:        "get_integration_details",
-			Description: "Get details about Elastic integration including data streams and field mappings",
-			InputSchema: map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
-					"integrationName": map[string]interface{}{
-						"type":        "string",
-						"description": "Name of the Elastic integration",
-					},
-				},
-				"required": []string{"integrationName"},
-			},
-		},
-		{
-			Name:        "get_troubleshooting_guide",
-			Description: "Get troubleshooting guide for common issues with a service",
-			InputSchema: map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
-						"type":        "string",
-						"description": "Name of the service",
-					},
-					"issue": map[string]interface{}{
-						"type":        "string",
-						"description": "Specific issue or error message",
-					},
-				},
-				"required": []string{"serviceName"},
-			},
-		},
-		{
-			Name:        "get_service_categories",
-			Description: "Get list of available service categories and services within each category",
-			InputSchema: map[string]interface{}{
-				"type":       "object",
-				"properties": map[string]interface{}{},
-				"required":   []string{},
-			},
-		},
-		{
-			Name:        "get_latest_docs",
-			Description: "Get the latest official documentation for a service",
-			InputSchema: map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
-					"serviceName": map[string]interface{}{
-						"type":        "string",
-						"description": "Name of the service",
-					},
-					"docType": map[string]interface{}{
-						"type":        "string",
-						"description": "Type of documentation (installation, configuration, api)",
-					},
-				},
-				"required": []string{"serviceName"},
+				"required": []string{"service_name"},
 			},
 		},
 	}
@@ -291,93 +243,61 @@ func (s *Server) handleCallTool(request JSONRPCRequest) JSONRPCResponse {
 	var err error
 
 	switch callRequest.Name {
-	case "get_service_info":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
+	case "search_documentation":
+		searchTerm, ok := callRequest.Arguments["search_term"].(string)
 		if !ok {
-			err = fmt.Errorf("serviceName is required")
+			err = fmt.Errorf("search_term is required")
+			break
+		}
+		serviceName, ok := callRequest.Arguments["service_name"].(string)
+		if !ok {
+			err = fmt.Errorf("service_name is required")
+			break
+		}
+		result, err = s.documentation.SearchDocumentation(searchTerm, serviceName)
+
+	case "get_service_info":
+		serviceName, ok := callRequest.Arguments["service_name"].(string)
+		if !ok {
+			err = fmt.Errorf("service_name is required")
 			break
 		}
 		result, err = s.serviceInfo.GetServiceInfo(serviceName)
 
-	case "get_setup_instructions":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
+	case "get_service_setup_instructions":
+		serviceName, ok := callRequest.Arguments["service_name"].(string)
 		if !ok {
-			err = fmt.Errorf("serviceName is required")
+			err = fmt.Errorf("service_name is required")
 			break
 		}
-		platform, _ := callRequest.Arguments["platform"].(string)
 		version, _ := callRequest.Arguments["version"].(string)
-		result, err = s.setupGuide.GetSetupInstructions(serviceName, platform, version)
+		result, err = s.setupGuide.GetServiceSetupInstructions(serviceName, version)
 
-	case "get_configuration_examples":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
+	case "get_kibana_setup_instructions":
+		serviceName, ok := callRequest.Arguments["service_name"].(string)
 		if !ok {
-			err = fmt.Errorf("serviceName is required")
+			err = fmt.Errorf("service_name is required")
 			break
 		}
-		configType, _ := callRequest.Arguments["configType"].(string)
-		result, err = s.setupGuide.GetConfigurationExamples(serviceName, configType)
+		inputType, _ := callRequest.Arguments["input_type"].(string)
+		version, _ := callRequest.Arguments["version"].(string)
+		result, err = s.setupGuide.GetKibanaSetupInstructions(serviceName, inputType, version)
 
-	case "search_service_docs":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
+	case "get_troubleshooting_help":
+		serviceName, ok := callRequest.Arguments["service_name"].(string)
 		if !ok {
-			err = fmt.Errorf("serviceName is required")
+			err = fmt.Errorf("service_name is required")
 			break
 		}
-		query, ok := callRequest.Arguments["query"].(string)
-		if !ok {
-			err = fmt.Errorf("query is required")
-			break
-		}
-		docType, _ := callRequest.Arguments["docType"].(string)
-		result, err = s.documentation.SearchServiceDocs(serviceName, query, docType)
+		result, err = s.documentation.GetTroubleshootingHelp(serviceName)
 
-	case "validate_configuration":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
+	case "get_validation_steps":
+		serviceName, ok := callRequest.Arguments["service_name"].(string)
 		if !ok {
-			err = fmt.Errorf("serviceName is required")
+			err = fmt.Errorf("service_name is required")
 			break
 		}
-		configuration, ok := callRequest.Arguments["configuration"].(string)
-		if !ok {
-			err = fmt.Errorf("configuration is required")
-			break
-		}
-		configType, ok := callRequest.Arguments["configType"].(string)
-		if !ok {
-			err = fmt.Errorf("configType is required")
-			break
-		}
-		result, err = s.validation.ValidateConfiguration(serviceName, configuration, configType)
-
-	case "get_integration_details":
-		integrationName, ok := callRequest.Arguments["integrationName"].(string)
-		if !ok {
-			err = fmt.Errorf("integrationName is required")
-			break
-		}
-		result, err = s.integration.GetIntegrationDetails(integrationName)
-
-	case "get_troubleshooting_guide":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
-		if !ok {
-			err = fmt.Errorf("serviceName is required")
-			break
-		}
-		issue, _ := callRequest.Arguments["issue"].(string)
-		result, err = s.documentation.GetTroubleshootingGuide(serviceName, issue)
-
-	case "get_service_categories":
-		result, err = s.serviceInfo.GetServiceCategories()
-
-	case "get_latest_docs":
-		serviceName, ok := callRequest.Arguments["serviceName"].(string)
-		if !ok {
-			err = fmt.Errorf("serviceName is required")
-			break
-		}
-		docType, _ := callRequest.Arguments["docType"].(string)
-		result, err = s.documentation.GetLatestDocs(serviceName, docType)
+		result, err = s.validation.GetValidationSteps(serviceName)
 
 	default:
 		err = fmt.Errorf("unknown tool: %s", callRequest.Name)
