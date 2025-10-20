@@ -1,31 +1,83 @@
 service_name: netskope
 title: Netskope
-description: Collect logs from Netskope with Elastic Agent.
+description: The Netskope integration for Elastic allows you to collect security logs and activity events from Netskope's cloud security platform, enabling you to monitor threats, investigate incidents, and ensure compliance across your organization's cloud applications.
 service_info:
   common_use_cases:
-  - '# TODO: Add common use cases for this service'
+    - Cloud security visibility and threat detection
+    - Data exfiltration monitoring and prevention
+    - Malware detection in cloud applications
+    - Policy violation tracking and compliance
+    - Threat hunting across cloud applications
+    - Security alert enrichment with user and application context
+    - Cloud security posture monitoring and dashboards
+    - User behavior pattern analysis
   data_types_collected:
-  - '# TODO: Add data types collected (logs, metrics, traces, etc.)'
+    - "alerts: Security alerts (DLP, malware, policy violations, compromised credentials, etc.)"
+    - "events: Activity events (application usage, web activity, audit logs, network events)"
+    - "transaction: Detailed web transaction logs"
   compatibility:
     elastic_stack_versions:
     - ^8.17.8 || ^8.18.3 || ^9.0.3
     service_versions:
-    - '# TODO: Add compatible service versions'
+    - "Netskope tenant with administrative access"
+    - "For Log Streaming: Log Streaming configured with GZIP compression"
+    - "For Cloud Log Shipper: Cloud Exchange v5.1.0+"
   scaling_and_performance:
-    description: '# TODO: Add service performance description'
+    description: "This integration supports two collection methods: Log Streaming (recommended) for cloud-native data collection via AWS, Azure, or GCS, and Cloud Log Shipper (legacy) for TCP-based collection via Netskope Cloud Exchange. Logs are collected in JSON format and automatically mapped to ECS fields."
     performance_expectations:
-    - '# TODO: Add typical performance expectations'
+    - "High-throughput log collection via cloud storage platforms"
+    - "Real-time processing of security alerts and events"
+    - "Efficient JSON format parsing and ECS field mapping"
     scaling_guidance:
-    - '# TODO: Add scaling recommendations'
+    - "Use Log Streaming method for better scalability and reliability"
+    - "Configure GZIP compression to reduce storage and transfer costs"
+    - "For more information on architectures that can be used for scaling this integration, check the Ingest Architectures documentation"
 setup_instructions:
   prerequisites:
-  - '# TODO: Add service prerequisites'
+    - "Agent-based installation: Elastic Agent must be installed. For more details, refer to the Elastic Agent installation instructions. You can install only one Elastic Agent per host."
+    - "From Elastic: Elastic Stack with appropriate licensing"
+    - "From Netskope: Netskope tenant with administrative access"
+    - "For Log Streaming: Log Streaming configured with GZIP compression"
+    - "For Cloud Log Shipper: Cloud Exchange v5.1.0+ deployed"
   installation_steps:
-  - step: 1
-    title: Install Netskope
-    description: '# TODO: Add Netskope installation instructions'
-    commands:
-    - '# TODO: Add commands to install Netskope'
+    - step: 1
+      title: "Configure Log Streaming (Recommended Method)"
+      description: "Set up Log Streaming for cloud-native data collection via AWS S3, Azure Blob Storage, or Google Cloud Storage"
+      config_snippets:
+        - filename: "AWS S3 Configuration"
+          content: |
+            # If you already have an AWS S3 bucket set up, configure it with Netskope by following these steps to enable Log Streaming:
+            # 1. Configure Netskope Log Streaming to AWS S3
+            # 2. Set up AWS SQS for real-time notifications
+            # 3. Configure IAM permissions for Elastic Agent
+        - filename: "Azure Blob Storage Configuration"
+          content: |
+            # If you already have an Azure container set up, configure it with Netskope via Log Streaming:
+            # 1. Enable Netskope Log Streaming to Azure
+            # 2. Configure OAuth2 authentication
+            # 3. Set up proper access permissions
+        - filename: "Google Cloud Storage Configuration"
+          content: |
+            # If you already have a GCS bucket set up, configure it with Netskope via Log Streaming:
+            # 1. Enable Netskope Log Streaming to GCS
+            # 2. Configure Project ID, bucket name, and Service Account Key or Service Account credentials
+            # 3. Set up proper IAM permissions
+    
+    - step: 2
+      title: "Configure Cloud Log Shipper (Legacy Method)"
+      description: "Set up TCP-based collection via Netskope Cloud Exchange for legacy deployments"
+      commands:
+        - "# Deploy Netskope Cloud Exchange v5.1.0 or higher"
+        - "# Configure TCP connection from Cloud Exchange to Elastic Agent"
+        - "# Ensure TCP ports are accessible between Cloud Exchange and Elastic Agent"
+    
+    - step: 3
+      title: "Obtain Credentials and Configuration"
+      description: "Configure authentication and access credentials for your chosen method"
+      commands:
+        - "# For Log Streaming: Refer to Netskope Log Streaming Configuration documentation"
+        - "# For cloud platform setup: Refer to Stream Logs to Elastic documentation"
+        - "# Ensure GZIP compression is enabled for optimal performance"
 kibana_setup_instructions:
   default:
     steps:
@@ -36,31 +88,80 @@ kibana_setup_instructions:
     - step: 3
       instruction: Select and add the 'Netskope' integration.
     - step: 4
-      instruction: Install Elastic Agent on the systems running Netskope, if necessary.
+      instruction: Install Elastic Agent on the systems that will collect Netskope logs, if necessary.
     - step: 5
-      instruction: '# TODO: Add service-specific configuration steps'
+      instruction: Configure your preferred collection method (Log Streaming or Cloud Log Shipper) with the appropriate cloud storage or TCP connection details.
     - step: 6
-      instruction: Press 'Save Integration' to start collecting data.
+      instruction: Set up authentication credentials for your chosen cloud platform (AWS, Azure, or GCS).
+    - step: 7
+      instruction: Enable the specific log types you want to collect (alerts, events, transaction).
+    - step: 8
+      instruction: Press 'Save Integration' to start collecting data from Netskope.
 troubleshooting:
-  common_issues:
-  - issue: Netskope fails to start
-    solution: '# TODO: Add troubleshooting steps for Netskope startup issues'
-  - issue: No data being collected
-    solution: '# TODO: Add troubleshooting steps for data collection issues'
+  common_configuration_issues:
+    - issue: "GZIP compression not enabled"
+      solution: "Enable GZIP compression in Netskope Log Streaming configuration to reduce storage and transfer costs"
+    - issue: "Invalid cloud storage credentials"
+      solution: "Verify and regenerate cloud platform credentials (AWS IAM, Azure Service Principal, or GCS Service Account)"
+    - issue: "TCP ports not accessible (for Cloud Log Shipper)"
+      solution: "Check firewall settings and network connectivity between Netskope Cloud Exchange and Elastic Agent"
+  
+  ingestion_errors:
+    - issue: "Check for ingestion errors"
+      solution: |
+        1. Navigate to Analytics > Discover in Kibana
+        2. Search: data_stream.dataset: netskope.* AND error.message: *
+        3. Add fields error.message and data_stream.dataset to view
+        4. Investigate specific error messages for resolution steps
+  
+  api_authentication_errors:
+    - issue: "AWS: 403 Forbidden"
+      solution: "Check IAM permissions for the configured AWS user/role. Ensure proper S3 and SQS access permissions"
+    - issue: "Azure: Authentication failed"
+      solution: "Verify Client ID, Client Secret, and Tenant ID in Azure configuration. Check Service Principal permissions"
+    - issue: "GCS: Invalid credentials"
+      solution: "Regenerate service account key and ensure proper IAM permissions for bucket access"
+  
+  vendor_resources:
+    - resource: "Netskope support documentation"
+      description: "Refer to official Netskope documentation for platform-specific troubleshooting"
+    - resource: "Netskope community forums"
+      description: "Community support for configuration and deployment issues"
+    - resource: "Common problems with Elastic ingest tools"
+      description: "For help with Elastic ingest tools, check Common problems documentation"
 validation_steps:
   steps:
   - step: 1
-    title: Check Netskope Service Status
-    description: Verify that Netskope is running and healthy
+    title: "Verify Dashboards are Populated"
+    description: "Check that Netskope dashboards in Kibana show data"
     commands:
-    - '# TODO: Add commands to check Netskope status'
-    expected_output: '# TODO: Add expected output'
+    - "Navigate to Dashboards in Kibana"
+    - "Search for 'netskope'"
+    - "Open Netskope dashboards and verify data is populated"
+    expected_output: "Dashboards display recent Netskope security events, alerts, and transaction data"
+  
   - step: 2
-    title: Check Integration Health
-    description: Verify Elastic Agent is collecting data
+    title: "Verify Data in Discover"
+    description: "Confirm log data is being ingested for all data streams"
     commands:
-    - '# Check Elastic Agent logs for netskope integration'
-    - '# Verify data appears in Elasticsearch indices'
-    expected_output: No errors in agent logs, data visible in Kibana
+    - "Navigate to Analytics > Discover"
+    - "Search: data_stream.dataset: 'netskope.alerts'"
+    - "Search: data_stream.dataset: 'netskope.events'"
+    - "Search: data_stream.dataset: 'netskope.transaction'"
+    expected_output: "Logs appear with recent timestamps for each data stream type"
+  
+  - step: 3
+    title: "Check Integration Health"
+    description: "Verify Elastic Agent is collecting data without errors"
+    commands:
+    - "Check Elastic Agent logs for netskope integration"
+    - "Navigate to Fleet > Agents and verify agent status"
+    - "Check integration status in Fleet management"
+    expected_output: "No errors in agent logs, integration shows healthy status, data visible in Kibana"
 documentation_sites:
-- '# TODO: Add relevant documentation URLs'
+- "docs.netskope.com/en/log-streaming/"
+- "docs.netskope.com/en/netskope-help/integrations-439794/elastic-integration/"
+- "docs.netskope.com/en/netskope-help/data-security/log-streaming-configuration/"
+- "docs.netskope.com/en/netskope-help/integrations-439794/elastic-integration/stream-logs-to-elastic/"
+- "community.netskope.com/"
+- "www.elastic.co/guide/en/fleet/current/elastic-agent-installation.html"
